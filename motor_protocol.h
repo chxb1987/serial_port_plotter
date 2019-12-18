@@ -1,0 +1,4 @@
+#ifndef MOTOR_PROTOCOL_H
+#define MOTOR_PROTOCOL_H
+
+#endif // MOTOR_PROTOCOL_H

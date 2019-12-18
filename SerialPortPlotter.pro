@@ -16,11 +16,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
         qcustomplot/qcustomplot.cpp \
-        helpwindow.cpp
+        helpwindow.cpp \
+        motor/motor_protocol.cpp
 
 HEADERS  += mainwindow.hpp \
         qcustomplot/qcustomplot.h \
-        helpwindow.hpp
+        helpwindow.hpp \
+        motor_protocol.h
 
 
 FORMS    += mainwindow.ui \
@@ -28,7 +30,7 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     res/serial_port_plotter.qrc \
-    res/qdark_stylesheet/qdarkstyle/style.qrc
+    #res/qdark_stylesheet/qdarkstyle/style.qrc
 
 # The following line compiles on Release but not on Debug, so this workaroung is used:
 RC_FILE = res/serial_port_plotter.rc
@@ -38,3 +40,6 @@ RC_FILE = res/serial_port_plotter.rc
 #win32:QMAKE_EXTRA_TARGETS += mkver_rc
 #win32:PRE_TARGETDEPS += serial_port_plotter_res.o
 #win32:LIBS += serial_port_plotter_res.o
+
+DISTFILES += \
+    TODO

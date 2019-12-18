@@ -926,3 +926,8 @@ void MainWindow::on_pushButton_clicked()
         ui->comboPort->addItem (port.portName());
     }
 }
+
+void MainWindow::on_pushButton_Import_clicked()
+{
+
+}
