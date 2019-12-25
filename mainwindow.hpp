@@ -30,8 +30,10 @@
 #include <QMainWindow>
 #include <QtSerialPort/QtSerialPort>
 #include <QSerialPortInfo>
+#include <QtXml>
 #include "helpwindow.hpp"
 #include "qcustomplot/qcustomplot.h"
+#include "motor_protocol.h"
 
 #define START_MSG       '$'
 #define END_MSG         ';'
@@ -98,6 +100,14 @@ private slots:
 
     void on_pushButton_Import_clicked();
 
+    void on_pushButton_Send_clicked();   
+
+    void on_pushButton_CreateData_clicked();
+
+    void on_comboBox_Command_currentTextChanged(const QString &arg1);
+
+    void on_lineEdit_UserData_textChanged(const QString &arg1);
+
 signals:
     void portOpenFail();                                                                  // Emitted when cannot open port
     void portOpenOK();                                                                    // Emitted when port is open
@@ -107,6 +117,8 @@ signals:
 private:
     Ui::MainWindow *ui;
 
+    /* motor protocol */
+    MotorProtocol m_MotorProtocol;
     /* Line colors */
     QColor line_colors[CUSTOM_LINE_COLORS];
     QColor gui_colors[GCP_CUSTOM_LINE_COLORS];
@@ -127,6 +139,11 @@ private:
     /* Listview Related */
     QStringListModel *channelListModel;
     QStringList     channelStrList;
+
+    //-- XML file operation
+    QFile* m_xmlFile = nullptr;
+    void parseXmlFile(void);
+    void closeXmlFile(void);
 
     //-- CSV file to save data
     QFile* m_csvFile = nullptr;

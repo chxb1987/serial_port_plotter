@@ -169,6 +169,17 @@ void MainWindow::createUI()
 
     /* Initialize the listwidget */
     ui->listWidget_Channels->clear();
+
+    /* Initialize the motor protocol */
+    m_MotorProtocol.setQComboBoxCommand(ui->comboBox_Command);
+    m_MotorProtocol.setQComboBoxOption(ui->comboBox_Option);
+    m_MotorProtocol.setQComboBoxData(ui->comboBox_Data);
+    m_MotorProtocol.setQLineEditData(ui->lineEdit_UserData);
+    m_MotorProtocol.init();
+
+    QIntValidator *validator = new QIntValidator(0, 99999, this);
+    ui->lineEdit_UserData->setValidator(validator);
+
 }
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
@@ -928,6 +939,116 @@ void MainWindow::on_pushButton_clicked()
 }
 
 void MainWindow::on_pushButton_Import_clicked()
+{ 
+    QString fileName = QFileDialog::getOpenFileName(this,
+          tr("Open Config File"), "", tr("XML Files (*.xml *.XML)"));
+    this->ui->lineEdit_ConfigFile->setText(fileName);
+
+    this->m_xmlFile = new QFile(fileName);
+    if(!this->m_xmlFile->open(QFile::ReadOnly)){
+        this->m_xmlFile->close();
+        return;
+    }
+    QDomDocument doc;
+    if(!doc.setContent(this->m_xmlFile))
+    {
+       this->m_xmlFile->close();
+       return;
+    }
+    this->m_xmlFile->close();
+    QDomElement root=doc.documentElement(); //返回根节点
+    qDebug()<<root.nodeName();
+    QDomNode node=root.firstChild(); //获得第一个子节点
+    while(!node.isNull())  //如果节点不空
+    {
+        if(node.isElement()) //如果节点是元素
+        {
+            QDomElement e=node.toElement(); //转换为元素，注意元素和节点是两个数据结构，其实差不多
+            qDebug()<<e.tagName()<<" "<<e.attribute("id")<<" "<<e.attribute("time"); //打印键值对，tagName和nodeName是一个东西
+            QDomNodeList list=e.childNodes();
+            for(int i=0;i<list.count();i++) //遍历子元素，count和size都可以用,可用于标签数计数
+            {
+                QDomNode n=list.at(i);
+                if(node.isElement())
+                    qDebug()<<n.nodeName()<<":"<<n.toElement().text();
+            }
+        }
+        node=node.nextSibling(); //下一个兄弟节点,nextSiblingElement()是下一个兄弟元素，都差不多
+    }
+    qDebug()<< "table widget init";
+    QStringList header;
+    header<<"Month"<<"Description";
+
+    ui->tableWidget_ConfigParam->setRowCount(5);
+    ui->tableWidget_ConfigParam->setColumnCount(4);
+    int width = ui->tableWidget_ConfigParam->width()/ui->tableWidget_ConfigParam->columnCount();
+
+    for(int i=0; i < ui->tableWidget_ConfigParam->columnCount(); i++){
+        ui->tableWidget_ConfigParam->setColumnWidth(i, width);
+    }
+    ui->tableWidget_ConfigParam->horizontalHeader()->setVisible(false);
+    ui->tableWidget_ConfigParam->verticalHeader()->setVisible(false);
+    //ui->tableWidget_ConfigParam->setHorizontalHeaderLabels(header);
+    ui->tableWidget_ConfigParam->setItem(0,0,new QTableWidgetItem("Jan"));
+    ui->tableWidget_ConfigParam->setItem(1,0,new QTableWidgetItem("Feb"));
+    ui->tableWidget_ConfigParam->setItem(2,0,new QTableWidgetItem("Mar"));
+
+    ui->tableWidget_ConfigParam->setItem(0,1,new QTableWidgetItem(QIcon(":/Image/IED.png"), "Jan's month"));
+    ui->tableWidget_ConfigParam->setItem(1,1,new QTableWidgetItem(QIcon(":/Image/IED.png"), "Feb's month"));
+    ui->tableWidget_ConfigParam->setItem(2,1,new QTableWidgetItem(QIcon(":/Image/IED.png"), "Mar's month"));
+    ui->tableWidget_ConfigParam->show();
+}
+
+void MainWindow::parseXmlFile()
 {
 
+}
+
+void MainWindow::closeXmlFile()
+{
+    this->m_xmlFile->close();
+}
+
+void MainWindow::on_pushButton_Send_clicked()
+{
+    QByteArray dataBuf;
+    if(!serialPort->isOpen()){
+        return;
+    }
+
+    QString data = ui->textEdit_SendBuf->toPlainText();
+    if(data.isEmpty()){
+        return;
+    }
+    dataBuf = data.toUtf8();
+    if(serialPort!=nullptr && serialPort->isOpen()){
+        serialPort->write(dataBuf);
+    }
+}
+
+void MainWindow::on_pushButton_CreateData_clicked()
+{
+    QString textEditData;
+    QByteArray data = m_MotorProtocol.getMotorSendData();
+    qDebug() << "data is :" << data;
+    if(data.isEmpty()){
+        return;
+    }
+    //textEditData.append(m_MotorProtocol.)
+    ui->textEdit_SendBuf->setText(data);
+    if(serialPort!=nullptr && serialPort->isOpen()){
+        serialPort->write(data);
+    }
+}
+
+
+void MainWindow::on_comboBox_Command_currentTextChanged(const QString &arg1)
+{
+    m_MotorProtocol.initQComboBoxOption(arg1);
+}
+
+void MainWindow::on_lineEdit_UserData_textChanged(const QString &arg1)
+{
+    int32_t data = arg1.toInt();
+    m_MotorProtocol.setQLineEditDataValue(data);
 }

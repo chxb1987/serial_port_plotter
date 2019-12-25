@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += serialport
+QT       += xml
 CONFIG += c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
@@ -17,12 +18,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
         qcustomplot/qcustomplot.cpp \
         helpwindow.cpp \
-        motor/motor_protocol.cpp
+        motor/motor_protocol.cpp \
+    motor/motor_param.cpp
 
 HEADERS  += mainwindow.hpp \
         qcustomplot/qcustomplot.h \
         helpwindow.hpp \
-        motor_protocol.h
+        motor_protocol.h \
+    motor/motor_param.h
 
 
 FORMS    += mainwindow.ui \
